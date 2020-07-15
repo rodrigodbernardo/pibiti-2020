@@ -1,4 +1,4 @@
-#include <Wire.h>
+#include <Arduino.h>
 
 class MPU {
   public:
