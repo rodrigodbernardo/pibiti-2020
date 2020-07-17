@@ -52,5 +52,5 @@ void Nodemcu::setupOTA() {
     }
   });
   ArduinoOTA.begin();
-  Serial.println("OTA Ready");
+  Serial.println("OTA Ready.");
 }
