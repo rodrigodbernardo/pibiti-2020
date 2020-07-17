@@ -1,40 +1,25 @@
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
+#include <ESP8266WiFiMulti.h>
 #include <ArduinoOTA.h>
 
-#ifndef STASSID
-#define STASSID "your-ssid"
-#define STAPSK  "your-password"
-#endif
+#include "lib-nodemcu.h"
 
-const char* ssid = STASSID;
-const char* password = STAPSK;
+void Nodemcu::setupWiFi(ESP8266WiFiMulti wifiMulti) {
+  // ----> A FAZER
+  //  ADICIONAR FUNÇÃO WPS.
 
-void setup() {
-  Serial.begin(115200);
-  Serial.println("Booting");
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.println("Connection Failed! Rebooting...");
-    delay(5000);
-    ESP.restart();
+  wifiMulti.addAP(SSID_01, PASS_01);
+
+  Serial.print("\n\nTrying to connect to WiFi");
+  while (wifiMulti.run() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
   }
+  Serial.println("\n\nWiFi connected successfully!");
+  Serial.println(WiFi.localIP());
+}
 
-  // Port defaults to 8266
-  // ArduinoOTA.setPort(8266);
-
-  // Hostname defaults to esp8266-[ChipID]
-  // ArduinoOTA.setHostname("myesp8266");
-
-  // No authentication by default
-  // ArduinoOTA.setPassword("admin");
-
-  // Password can be set with it's md5 value as well
-  // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
-  // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
-
+void Nodemcu::setupOTA() {
   ArduinoOTA.onStart([]() {
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -67,11 +52,5 @@ void setup() {
     }
   });
   ArduinoOTA.begin();
-  Serial.println("Ready");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-}
-
-void loop() {
-  ArduinoOTA.handle();
+  Serial.println("OTA Ready.");
 }
