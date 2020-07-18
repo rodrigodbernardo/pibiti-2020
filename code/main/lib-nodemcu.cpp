@@ -6,35 +6,15 @@
 
 void Nodemcu::setupWiFi(ESP8266WiFiMulti wifiMulti)
 {
-  // ----> A FAZER
-  //  ADICIONAR FUNÇÃO WPS.
-
   while (wifiMulti.run() != WL_CONNECTED)
   {
     WiFi.mode(WIFI_STA);
     wifiMulti.addAP(SSID_01, PASS_01);
-    Serial.println("Trying to connect to WiFi");
-    delay(500);
+    Serial.println("Trying to connect to WiFi.");
+    delay(1000);
   }
-  Serial.println("\nWiFi connected successfully!");
+  Serial.print("\nWiFi connected. IP ");
   Serial.println(WiFi.localIP());
-
-  /*
-  if (wifiMulti.run() != WL_CONNECTED) {
-
-    WiFi.mode(WIFI_STA);
-    wifiMulti.addAP(SSID_01, PASS_01);
-
-    Serial.print("\n\nTrying to connect to WiFi");
-    while (wifiMulti.run() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-    }
-
-    Serial.println("\n\nWiFi connected successfully!");
-    Serial.println(WiFi.localIP());
-  }
-*/
 }
 
 void Nodemcu::setupOTA()
@@ -84,21 +64,4 @@ void Nodemcu::setupOTA()
   });
   ArduinoOTA.begin();
   Serial.println("OTA Ready.");
-}
-void Nodemcu::setupMQTT(PubSubClient MQTT, char *deviceID)
-{
-  while (!MQTT.connected())
-  {
-    Serial.println("Trying to connect to the Broker.");
-    if (MQTT.connect(deviceID))
-    {
-      Serial.print("\nBroker connected successfully!");
-    }
-    delay(5000);
-  }
-}
-
-//principal função do programa
-void Nodemcu::inputMQTT(char* topic, byte* payload, unsigned int length){
-
 }
