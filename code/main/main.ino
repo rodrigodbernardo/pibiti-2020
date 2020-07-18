@@ -1,4 +1,5 @@
 #include <ESP8266WiFiMulti.h>
+#include <PubSubClient.h>
 #include <ArduinoOTA.h>
 #include <Wire.h>
 
@@ -12,27 +13,63 @@
 
 using namespace std;
 
-vector <vector<int>> myvector;
+////Constantes e variaveis gerais
+
+const long loopInterval = 1000;
+unsigned long prevTime = 0;
+
+//// DADOS MQTT
+
+const char* server    = "iot.eclipse.org";
+const int   port      = 1883;
+
+#define deviceID  "node_01"
+#define topic     "topico_01"
+
+////
+
+//vector <vector<int>> myvector;
+
+////Objetos
 
 ESP8266WiFiMulti wifiMulti;
-
 MPU sensor;
 Nodemcu nodemcu;
 
+WiFiClient wifiClient;
+PubSubClient MQTT(wifiClient);
+
 void setup(){
-    pinMode(LED_BUILTIN, OUTPUT);
     Serial.begin(115200);
     Wire.begin(SDA, SCL);
-
-    //setupWiFi(wifiMulti);
     nodemcu.setupWiFi(wifiMulti);
     nodemcu.setupOTA();
     sensor.setup();
+
+    MQTT.setServer(server, port);
+    MQTT.setCallback(nodemcu.inputMQTT);
 }
 
 void loop(){
-  ArduinoOTA.handle();
 
+  //checa as conexoes
+  nodemcu.setupWiFi(wifiMulti);
+  nodemcu.setupMQTT(MQTT);
+
+  //aguarda OTA ou comando MQTT
+  ArduinoOTA.handle();
+  MQTT.loop();
+/*
+  unsigned long currTime = millis();
+
+  if(currTime - prevTime >= loopInterval){
+    prevTime = currTime;
+
+    ArduinoOTA.handle();
+    MQTT.loop();
+  }
+*/
+  
   //  1
   //verifica wifi
     //se o wifi esta desconectado, tenta realizar conexao por 1 minuto
