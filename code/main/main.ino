@@ -1,5 +1,6 @@
 #include <ESP8266WiFiMulti.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 #include <ArduinoOTA.h>
 #include <Wire.h>
 
@@ -16,11 +17,15 @@ using namespace std;
 ////Constantes e variaveis gerais
 
 const long loopInterval = 1000;
+
+bool liveFlag = 0;
 unsigned long prevTime = 0;
+
 
 //// DADOS MQTT
 
-const char* inTopic     = "rdba_topico_01";
+const char* inTopic     = "rdba_cmd";
+const char* outTopic    = "rdba_live";
 const char* server    = "broker.hivemq.com";
 const int   port      = 1883;
 
@@ -35,6 +40,7 @@ const int   port      = 1883;
 ESP8266WiFiMulti wifiMulti;
 MPU sensor;
 Nodemcu nodemcu;
+StaticJsonDocument <200> data;
 
 WiFiClient wifiClient;
 PubSubClient MQTT(wifiClient);
@@ -60,6 +66,12 @@ void loop() {
   //aguarda OTA ou comando MQTT
   ArduinoOTA.handle();
   MQTT.loop();
+
+  if(liveFlag){
+    Serial.println("Esta é uma captura.");
+    MQTT.publish(outTopic, "Essa é uma captura");
+    delay(100);
+  }
 
   //  1
   //verifica wifi
@@ -101,11 +113,31 @@ void inputMQTT(char* topic, byte* payload, unsigned int length) {
     msg += c;
   }
 
-  if (msg == "0"){
-    Serial.println("Zero recebido!");
+  Serial.println("Input: " + msg);
+  deserializeJson(data,msg);
+
+  /*
+      A mensagem recebida tem o formato:
+      {"cmd":"xxxx","num_capt":"yyyy","num_samp":"zzzz"}
+  */
+
+  if (data["cmd"] == "cmd_capt"){
+    liveFlag = 0;
+    Serial.println("\nCapture Mode.");
+    Serial.print("Num. of captures: ");Serial.println(data["capt"].as<String>());
+    Serial.print("Num. of samples:  ");Serial.println(data["samp"].as<String>());
+
+    int capt = data["capt"];
+    int samp = data["samp"];
+    
   }
-  if (msg == "1"){
-    Serial.println("Um recebido");
+  else if (data["cmd"] == "cmd_live"){
+    liveFlag = 1;
+    Serial.println("\nLive Mode");
+  }
+  else{
+    liveFlag = 0;
+    Serial.println("Comando desconhecido. Tente novamente.\n");
   }
 }
 
