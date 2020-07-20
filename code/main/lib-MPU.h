@@ -5,6 +5,10 @@ class MPU {
     void setup();
     void write(int REG, int VAL);
     void read();
+    void capture(int nCapture,int nSample,int sampleRate);
+    
+    //int16_t buff[7];
+    vector<int16_t> buff;
   private:
     //futuramente, posso transformar essas constantes em variaveis no construtor da classe
     const uint8_t ACCEL_XOUT = 0x3B;

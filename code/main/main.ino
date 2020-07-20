@@ -18,8 +18,9 @@ using namespace std;
 
 const long loopInterval = 1000;
 
-bool liveFlag = 0;
 unsigned long prevTime = 0;
+bool liveFlag = 0;
+
 
 
 //// DADOS MQTT
@@ -29,7 +30,9 @@ const char* outTopic    = "rdba_live";
 const char* server    = "broker.hivemq.com";
 const int   port      = 1883;
 
-
+//// DADOS DE CAPTURA
+int capt;
+int samp;
 
 ////
 
@@ -58,8 +61,8 @@ void setup() {
 }
 
 void loop() {
-  
-  if(!MQTT.connected()){
+
+  if (!MQTT.connected()) {
     setupMQTT();
   }
 
@@ -67,10 +70,15 @@ void loop() {
   ArduinoOTA.handle();
   MQTT.loop();
 
-  if(liveFlag){
-    Serial.println("Esta é uma captura.");
-    MQTT.publish(outTopic, "Essa é uma captura");
-    delay(100);
+  //só entrará nessa rotina a cada 'loopInterval' de tempo. 
+  unsigned long curMillis = millis();
+  if (curMillis - prevMillis >= loopInterval) {
+    prevMillis = curMillis;
+    if (liveFlag) {
+      Serial.println("Esta é uma captura.");
+      MQTT.publish(outTopic, "Essa é uma captura");
+      //delay(100);
+    }
   }
 
   //  1
@@ -108,50 +116,54 @@ void loop() {
 void inputMQTT(char* topic, byte* payload, unsigned int length) {
   String msg;
 
-  for (int i = 0; i < length; i++){
+  for (int i = 0; i < length; i++) {
     char c = (char)payload[i];
     msg += c;
   }
 
   Serial.println("Input: " + msg);
-  deserializeJson(data,msg);
+  deserializeJson(data, msg);
 
   /*
       A mensagem recebida tem o formato:
       {"cmd":"xxxx","num_capt":"yyyy","num_samp":"zzzz"}
   */
 
-  if (data["cmd"] == "cmd_capt"){
+  if (data["cmd"] == "cmd_capt") {
     liveFlag = 0;
     Serial.println("\nCapture Mode.");
-    Serial.print("Num. of captures: ");Serial.println(data["capt"].as<String>());
-    Serial.print("Num. of samples:  ");Serial.println(data["samp"].as<String>());
-
-    int capt = data["capt"];
-    int samp = data["samp"];
     
+    Serial.print("Num. of captures: ");   Serial.println(data["nCapture"].as<String>());
+    Serial.print("Num. of samples:  ");   Serial.println(data["nSample"].as<String>());
+    Serial.print("Sample rate (ms):  ");  Serial.println(data["nSample"].as<String>());
+
+    int nCapture   = data["nCapture"];
+    int nSample    = data["nSample"];
+    int sampleRate = data["sampleRate"];
+
+    MPU.capture(nCapture,nSample,sampleRate);
   }
-  else if (data["cmd"] == "cmd_live"){
+  else if (data["cmd"] == "cmd_live") {
     liveFlag = 1;
     Serial.println("\nLive Mode");
   }
-  else{
+  else {
     liveFlag = 0;
     Serial.println("Comando desconhecido. Tente novamente.\n");
   }
 }
 
 void setupMQTT() {
-    
-    String deviceID = "ESP8266Client-";
-    deviceID += String(random(0xffff), HEX);
-    
-    Serial.println("Trying to connect to MQTT Broker.");
-    if (MQTT.connect(deviceID.c_str())){
-      Serial.println("\nBroker connected!");
-      MQTT.subscribe(inTopic);
-    } else {
-      Serial.println("Error. Trying again in 5 seconds.");
-      delay(5000);
-    }
+
+  String deviceID = "ESP8266Client-";
+  deviceID += String(random(0xffff), HEX);
+
+  Serial.println("Trying to connect to MQTT Broker.");
+  if (MQTT.connect(deviceID.c_str())) {
+    Serial.println("\nBroker connected!");
+    MQTT.subscribe(inTopic);
+  } else {
+    Serial.println("Error. Trying again in 5 seconds.");
+    delay(5000);
+  }
 }

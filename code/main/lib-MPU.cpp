@@ -22,6 +22,22 @@ void MPU::read()
   Wire.write(ACCEL_XOUT);
   Wire.endTransmission(false);
   Wire.requestFrom(MPU_ADDR, (uint8_t)14);
+  for (int i = 0; i < 7; i++)
+    int16_t temp = Wire.read() << 8 | Wire.read();
+    buff.push_back(temp);
+  yield();
+}
 
-  //incompleto
+void MPU::capture(int nCapture, int nSample, int sampleRate) {
+  for (int i = 0; i < nCapture; i++) {
+    for (int j = 0; j < nSample; j++) {
+      read();
+
+      //adicionar os dados que acabaram de ser lidos ao vector.
+
+      delay(sampleRate);
+    }
+    //captura x concluida;
+    //conectar ao firebase e enviar o vector preenchido
+  }
 }
