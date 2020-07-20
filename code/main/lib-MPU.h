@@ -1,4 +1,7 @@
 #include <Arduino.h>
+#include <vector>
+
+using namespace std;
 
 class MPU {
   public:
@@ -9,6 +12,8 @@ class MPU {
     
     //int16_t buff[7];
     vector<int16_t> buff;
+    vector<vector<int16_t> > sensorData;
+    int16_t temp;
   private:
     //futuramente, posso transformar essas constantes em variaveis no construtor da classe
     const uint8_t ACCEL_XOUT = 0x3B;
