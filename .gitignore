@@ -1,0 +1,4 @@
+.win-venv
+.unix-venv
+.vscode
+venv
