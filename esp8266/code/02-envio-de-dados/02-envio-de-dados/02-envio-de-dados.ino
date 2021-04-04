@@ -76,7 +76,7 @@ void loop() {
 
   MQTT.loop();
 
-  delay(1000);
+  delay(100);
 }
 
 void brokerSetup()//setupMQTT
