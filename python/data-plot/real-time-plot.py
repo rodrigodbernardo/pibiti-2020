@@ -13,39 +13,45 @@ acx_dt = [ ]
 ycos = [ ]
 data = [ ]
 data_ = 1
+axis_data = [[],[],[],[],[],[]]
+plots = [0,0,0,0,0,0]
 
 plt.style.use('seaborn')
 #plt.style.use('fivethirtyeight')
 
-fig, acx = plt.subplots()
-#sin.set_ylim(-1,1)
-   
+fig, ((plots[0],plots[1]),(plots[2],plots[3]),(plots[4],plots[5])) = plt.subplots(nrows=3,ncols=2)
+    
 index = count(step=1)
+
+def animate(i):
+    global data
+    global plots
+
+    #if(len(acx_dt) > 0):
+    x.append(next(index))
+
+    print(data)
+    #print(axis_data)
+
+    for axis in range (2,3):
+        axis_data[axis].append(data[axis])
+
+        plots[axis].cla()
+        plots[axis].set_ylim(-15,15)
+        plots[axis].plot(x,axis_data[axis])
+
+    print(axis_data)
+    
+    if len(x) == 50:
+        x.pop(0)
+        axis_data[0].pop(0)
+
 def on_message(client, userdata, message):
     global data
 
     data = message.payload.decode("utf-8").split(";")
     data.pop(-1)
     data = [float(i) for i in data]
-    
-
-def animate(i):
-    global data
-    global acx_dt
-
-    #if(len(acx_dt) > 0):
-    x.append(next(index))
-    acx_dt.append(data[0])
-    acx.cla()
-
-    #acx.set_xlim(max(0,x[-1]-10),x[-1]+5)
-    acx.set_xlim(max(0,x[-1]-10),x[-1]+5)
-
-    acx.plot(x,acx_dt)
-
-    if len(x) == 500:
-        x.pop(0)
-        acx_dt.pop(0)
 
 def on_connect (client, userdata, flags, rc):
     if rc == 0:
