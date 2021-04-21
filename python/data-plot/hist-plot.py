@@ -11,7 +11,7 @@ folder = input('Choose the frequency[Hz]: ')
 size = int(input('Set the size: '))
 
 iteration = 0
-for path in glob.glob('./python/capture/3230_VAZIO/*.txt'.format(folder)):
+for path in glob.glob('./python/capture/{}/*.txt'.format(folder)):
     iteration += 1
 
     plt.style.use('seaborn')
@@ -20,13 +20,13 @@ for path in glob.glob('./python/capture/3230_VAZIO/*.txt'.format(folder)):
 
     x = np.arange(size)
 
-    fig, ((acx,acy),(acz,gyx),(gyy,gyz)) = plt.subplots(nrows=3,ncols=2,sharex=False,sharey=True)
+    fig, ((acx,acy,acz),(gyx,gyy,gyz)) = plt.subplots(nrows=2,ncols=3,sharex=False,sharey=True)
     #fig, acy = plt.subplots(sharey=True)
 
     axes = np.array([acx,acy,acz,gyx,gyy,gyz])
     #axes = np.array([acy])
 
-    fig.suptitle('{} Hz'.format(folder))
+    fig.suptitle('{} Hz'.format(folder[-2:]))
 
     for i in range(6):
         
@@ -41,7 +41,7 @@ for path in glob.glob('./python/capture/3230_VAZIO/*.txt'.format(folder)):
     #plt.show()
 
     try:
-        fig.savefig('./python/image/{}_{}_{}_{}.png'.format(dt.now().strftime("%Y%m%d_%H-%M-%S"),folder,size,iteration))
+        fig.savefig('./python/image/{}/{}_{}_{}_{}.png'.format(folder,dt.now().strftime("%Y%m%d_%H-%M-%S"),folder,size,iteration))
         print('Capture saved.')
     except:
         print('Failed to save image.')
