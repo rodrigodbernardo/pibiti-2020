@@ -16,7 +16,9 @@ ycos = [ ]
 plt.style.use('seaborn')
 #plt.style.use('fivethirtyeight')
 
-fig, (sin,cos) = plt.subplots(nrows=2,ncols=1)
+#fig, (sin,cos) = plt.subplots(nrows=2,ncols=1)
+fig, ((plots[0],plots[1]),(plots[2],plots[3]),(plots[4],plots[5])) = plt.subplots(nrows=3,ncols=2)
+
 
 #sin.set_ylim(-1,1)
    
