@@ -17,22 +17,27 @@ for path in glob.glob('./python/capture/{}/*.txt'.format(folder)):
     plt.style.use('seaborn')
     raw = pd.read_csv(path)
     header = raw.keys()
+    #print(raw)
 
     x = np.arange(size)
 
-    fig, ((acx,acy,acz),(gyx,gyy,gyz)) = plt.subplots(nrows=2,ncols=3,sharex=False,sharey=True)
-    #fig, acy = plt.subplots(sharey=True)
-
+    fig, ((acx,gyx),(acy,gyy),(acz,gyz)) = plt.subplots(figsize=(6,5),sharey=False,nrows=3,ncols=2)
+    #fig, (acx) = plt.subplots(sharey=False)
     axes = np.array([acx,acy,acz,gyx,gyy,gyz])
     #axes = np.array([acy])
 
-    fig.suptitle('{} Hz'.format(folder[-2:]))
+    fig.suptitle('{} Hz'.format(folder[-2:]),size=20.0)
 
-    for i in range(6):
-        
-        axes[i].plot(x,raw.iloc[:size,i])
-        axes[i].set_title(header[i])
-        axes[i].set_ylim([-32768,32767])
+    for g in range(3):
+        axes[g].plot(x,raw.iloc[:size,g])
+        axes[g].set_title(header[g], size=20.0)
+        axes[g].set_ylim([-20000,20000])
+        axes[g].set_xlim([0,size])
+
+        axes[g+3].plot(x,raw.iloc[:size,g+3])
+        axes[g+3].set_title(header[g+3], size=20.0)
+        axes[g+3].set_ylim([-5000,5000])
+        axes[g+3].set_xlim([0,size])
 
     #axes[0].set_xlabel('Eixo X')
     #axes[0].set_ylabel('Eixo Y')
@@ -41,7 +46,7 @@ for path in glob.glob('./python/capture/{}/*.txt'.format(folder)):
     #plt.show()
 
     try:
-        fig.savefig('./python/image/{}/{}_{}_{}_{}.png'.format(folder,dt.now().strftime("%Y%m%d_%H-%M-%S"),folder,size,iteration))
+        fig.savefig('./python/image/{}/{}_{}_{}_{}.png'.format(folder,dt.now().strftime("%Y%m%d_%H-%M-%S"),folder,size,iteration),dpi=500)
         print('Capture saved.')
     except:
         print('Failed to save image.')
