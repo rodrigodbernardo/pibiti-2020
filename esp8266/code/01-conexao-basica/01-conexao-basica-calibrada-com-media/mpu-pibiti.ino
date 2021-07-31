@@ -12,6 +12,7 @@ void sensor::wakeup() {
   write(ACCEL_CONFIG, ACCEL_SCALE); //CONFIGURA A ESCALA DO ACELERÔMETRO - +-4G
 }
 
+
 void sensor::write(int reg, int val) {
   Wire.beginTransmission(MPU_ADDR); // inicia comunicação com endereço do MPU6050
   Wire.write(reg);                  // envia o registro com o qual se deseja trabalhar
